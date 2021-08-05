@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require_relative 'lib/bloggen'
+require 'getoptlong'
+
+opts = GetoptLong.new(
+  ['--help', '-h', GetoptLong::NO_ARGUMENT]
+)
+
+opts.each do |opt, _arg|
+  case opt
+  when '--help'
+    puts <<~HELP
+            bloggen [OPTION] ... BLOGNAME
+      #{'      '}
+            -h, --help:
+                show help
+      #{'      '}
+            BLOGNAME: The name of the blog to publish
+    HELP
+    exit 0
+  end
+end
+
+if ARGV.length != 1
+  puts 'Missing blogname arg (try --help)'
+  exit 0
+end
+
+blogname = ARGV.shift
+
+puts blogname
