@@ -3,11 +3,25 @@
 blog_name='runcode.blog'
 publish_time=`date +%m-%d-%Y`
 
+for arg in "$@"
+do
+  case $arg in
+    -d|--dry-run)
+    DRY_RUN=1
+    shift
+    ;;
+  esac
+done
+
 ./bin/bloggen \
   $blog_name \
   /Users/josephroque/Library/Mobile\ Documents/iCloud~md~obsidian/Documents/Personal/Writing/Blog\ Posts \
   /Users/josephroque/Library/Mobile\ Documents/iCloud~md~obsidian/Documents/Personal/Attachments/runcode.blog/posts \
   ../$blog_name
+
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  exit 0
+fi
 
 pushd ../$blog_name
 if [[ `git status --porcelain` ]]; then
