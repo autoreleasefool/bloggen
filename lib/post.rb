@@ -60,6 +60,21 @@ class Post
     end
   end
 
+  def collect_images
+    [
+      @frontmatter.key?('feature_image') ? "#{@frontmatter["permalink"]}/#{@frontmatter["feature_image"]}" : nil
+    ].compact + @body.each_line
+      .select { |l| l.start_with?('![') }
+      .map { |l|
+        parts = l.match(@@image_regex)
+        fname = parts["Filename"]
+        slash_index = fname.rindex("/")
+        slash_index = fname.rindex("/", slash_index - fname.length - 1)
+
+        fname[slash_index + 1..]
+      }
+  end
+
   private
 
   def type
