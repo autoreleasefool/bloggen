@@ -20,6 +20,7 @@ done
   ../$blog_name
 
 if [[ "$DRY_RUN" -eq 1 ]]; then
+  echo "Not publishing, exiting"
   exit 0
 fi
 
@@ -28,6 +29,7 @@ if [[ `git status --porcelain` ]]; then
   git add .
   git commit -m "bloggen: publish $blog_name, $publish_time"
   git push origin main
+  echo "Published changes"
 else
   echo "No changes"
 fi
