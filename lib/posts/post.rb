@@ -58,6 +58,17 @@ class Post
     end
   end
 
+  def publish_images(source_dir, dest_dir)
+    collect_images.each do |i|
+      fname = "#{dest_dir}/#{i}"
+      FileUtils.mkdir_p(File.dirname(fname))
+      FileUtils.cp(
+        "#{source_dir}/#{i}",
+        fname
+      )
+    end
+  end
+
   def collect_images
     [
       @frontmatter.key?('feature_image') ? "#{@frontmatter["permalink"]}/#{@frontmatter["feature_image"]}" : nil

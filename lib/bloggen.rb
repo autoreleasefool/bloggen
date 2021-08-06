@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'post'
+require_relative 'posts/post'
 require 'fileutils'
 
 class Bloggen
@@ -31,22 +31,12 @@ class Bloggen
     # Publish each post that's valid
     posts.each { |p| p.publish(@dest_dir) }
 
-    # Collect images from published posts
-    images = posts.flat_map { |p| p.collect_images }
-
     # Clean up images directory before publishing
     images_dest_dir = "#{@dest_dir}/assets/posts"
     FileUtils.rm_rf(images_dest_dir)
 
-    # Copy images to expected file structure
-    images.each do |i|
-      fname = "#{images_dest_dir}/#{i}"
-      FileUtils.mkdir_p(File.dirname(fname))
-      FileUtils.cp(
-        "#{@images_source_dir}/#{i}",
-        fname
-      )
-    end
+    # Publish images of each post
+    posts.each { |p| p.publish_images(@images_source_dir, images_dest_dir) }
   end
 
 end
