@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'posts/post'
+require_relative 'posts/posts'
 require 'fileutils'
 
 class Bloggen
@@ -13,20 +13,11 @@ class Bloggen
   end
 
   def generate
-    # Gets posts from files
-    posts = Dir.children(@posts_source_dir)
-      .map { |f| @posts_source_dir + '/' + f }
-      .select { |f| File.file?(f) }
-      .map { |f| Post.new(f) }
-
-    # Filter posts that should be published
-    posts = posts.select { |p| !p.frontmatter.empty? }
-      .select { |p| p.frontmatter['publish'] == 'true' }
-      .select { |p| p.frontmatter['blog'] == @blogname }
-
     # Remove existing posts
     FileUtils.rm_rf("#{@dest_dir}/_posts")
     FileUtils.mkdir_p("#{@dest_dir}/_posts")
+
+    posts = Posts::collect(@blogname, @posts_source_dir)
 
     # Publish each post that's valid
     posts.each { |p| p.publish(@dest_dir) }
