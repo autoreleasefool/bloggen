@@ -7,31 +7,29 @@ class Post
   @@image_regex = /^!\[(?<Caption>[^\]]+)\]\((?<Filename>[^\)]+)\)/
 
   def initialize(input_filename)
-    @title = File.basename(input_filename, '.md')
+    @input_filename = input_filename
     @frontmatter = {}
-    @body = ''
 
-    in_frontmatter = false
-    File.foreach(input_filename) do |line|
-      if line.strip == '---' then
-        in_frontmatter = !in_frontmatter
+    File.foreach(input_filename).with_index do |line, index|
+      if index == 0 then
+        if line.chomp != '---' then
+          raise "File `#{input_filename}` missing frontmatter"
+        end
         next
       end
 
-      if in_frontmatter then
-        key, value = line.split(':', 2)
-        next unless key.start_with?('bloggen_')
+      return unless line.chomp != '---'
 
-        @frontmatter[key[8...]] = value.strip
-      else
-        @body = "#{@body}#{line}"
-      end
+      key, value = line.split(':', 2)
+      next unless key.start_with?('bloggen_')
+
+      @frontmatter[key[8...]] = value.strip
     end
   end
 
   def publish(dest_dir)
     dest = "#{dest_dir}/_#{type}s/#{filename}.md"
-    body_out = "\n" + @body.each_line
+    body_out = "\n\n" + body.each_line
       .drop(2)
       .select { |l| !l.empty? }
       .flat_map { |l|
@@ -63,7 +61,7 @@ class Post
   def collect_images
     [
       @frontmatter.key?('feature_image') ? "#{@frontmatter["permalink"]}/#{@frontmatter["feature_image"]}" : nil
-    ].compact + @body.each_line
+    ].compact + body.each_line
       .select { |l| l.start_with?('![') }
       .map { |l|
         parts = l.match(@@image_regex)
@@ -77,6 +75,33 @@ class Post
 
   private
 
+  def title
+    frontmatter_markers = 2
+    File.foreach(@input_filename) do |line|
+      frontmatter_markers -= line.chomp === '---' ? 1 : 0
+      next unless frontmatter_markers <= 0
+
+      return line[1..].strip if line.start_with?('# ')
+    end
+  end
+
+  def body
+    frontmatter_markers = 2
+    after_title = false
+    body = ""
+    File.foreach(@input_filename) do |line|
+      frontmatter_markers -= line.chomp === '---' ? 1 : 0
+      next unless frontmatter_markers <= 0
+
+      after_title = after_title || line.start_with?('# ')
+      next unless after_title
+
+      body = "#{body}#{line}"
+    end
+
+    body
+  end
+
   def type
     @frontmatter["type"]
   end
@@ -86,7 +111,9 @@ class Post
   end
 
   def tags
-    @frontmatter["tags"].split(", ").join(' ')
+    @frontmatter["tags"].split(",")
+      .map { |t| t.strip }
+      .join(' ')
   end
 
   def feature_image
@@ -102,7 +129,7 @@ class Post
       '---',
       "layout: #{type}",
       "permalink: #{permalink}",
-      "title: \"#{@title}\"",
+      "title: \"#{title}\"",
       "date: #{@frontmatter["date"]}",
       feature_image ? feature_image : nil,
       "tags: #{tags}",
