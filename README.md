@@ -38,6 +38,14 @@ bloggen_type: post
 bloggen_permalink: test-post-please-ignore
 bloggen_date: 2021-08-05
 ---
+
+# This is the title
+
+Here's an introduction.
+
+## This is a secondary header
+
+Here's another line.
 ```
 
 ### Post content
