@@ -6,10 +6,10 @@ See my blog at [https://runcode.blog](https://runcode.blog) for an example publi
 
 ## Usage
 
-- `./bin/bloggen <blogname> <posts_source> <images_source> <destination>`
+- `./bin/bloggen <blogname> <posts_source> <images_source> <tags_file> <destination>`
 - `./bin/publish_runcode`
 
-## Format
+## Posts
 
 ### Frontmatter
 
@@ -50,6 +50,21 @@ Posts should be written in markdown, and expect the following approximate format
 - You can use most markdown elements as expected.
 - The filename should end in a `.md` file extension
 
-## Output
+### Output
 
 bloggen has been built to support publishing to a blog backed by [jekyll](https://jekyllrb.com). It will output posts to a `_posts` subdirectory in the `<destination>` provided in the arguments, and will output images to a `assets/posts/` subdirectory in `<destination>`. It will also clean these folders before writing changes, so if you're just starting with bloggen, ensure your posts are backed up elsewhere.
+
+
+## Tags
+
+bloggen will capture and publish your tags, from a file formatted as follows:
+
+```
+- name: tag_name
+  slug: tag-slug
+  feature_image: path/to/image.jpg
+```
+
+### Output
+
+bloggen will create a file `_data/tags.yml` with your tags, their slugs, and their images in `<destination>`. It will also create a separate `tags/slug-name.html` for each tag. It will also output images to a `assets/tags/` subdirectory in `<destination>`. Finally, it will clean these folders before writing changes, so if you're just starting with bloggen, ensure your posts are backed up elsewhere.
