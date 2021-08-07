@@ -12,7 +12,7 @@ opts.each do |opt, _arg|
   case opt
   when '--help'
     puts <<~HELP
-bloggen [OPTION] ... BLOGNAME POSTS_SOURCE IMAGES_SOURCE BLOG_DEST
+bloggen [OPTION] ... BLOGNAME POSTS_SOURCE IMAGES_SOURCE TAGS_FILE BLOG_DEST
 
 -h, --help:
   show help
@@ -20,13 +20,14 @@ bloggen [OPTION] ... BLOGNAME POSTS_SOURCE IMAGES_SOURCE BLOG_DEST
 BLOGNAME: The name of the blog to publish
 POSTS_SOURCE: Directory to load blog posts from
 IMAGES_SOURCE: Directory to load images from
+TAGS_FILE: File to parse for tag descriptions
 BLOG_DEST: Directory to publish blog posts to
     HELP
     exit 0
   end
 end
 
-if ARGV.length != 4
+if ARGV.length != 5
   puts 'Invalid args (try --help)'
   exit 0
 end
@@ -34,7 +35,8 @@ end
 blogname = ARGV.shift
 posts_source = ARGV.shift
 images_source = ARGV.shift
+tags_file = ARGV.shift
 dest = ARGV.shift
 
-bloggen = Bloggen.new(blogname, posts_source, images_source, dest)
+bloggen = Bloggen.new(blogname, posts_source, images_source, tags_file, dest)
 bloggen.generate

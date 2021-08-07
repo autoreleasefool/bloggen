@@ -23,6 +23,14 @@ class Bloggen
     posts.each { |p| p.publish(@dest_dir) }
     posts.each { |p| p.publish_images(@images_source_dir, "#{@dest_dir}/assets/posts") }
 
+    # Clean up tags directories
+    Tags::clean(@dest_dir)
+
+    # Publish each tags that's valid
+    tags = Tags::collect(@tags_file)
+    tags.each { |t| t.publish(@dest_dir) }
+    tags.each { |t| t.publish_image(@images_source_dir, "#{@dest_dir}/assets/tags") }
+
   end
 
 end
