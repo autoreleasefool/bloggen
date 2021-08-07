@@ -63,7 +63,7 @@ class Post
       fname = "#{dest_dir}/#{i}"
       FileUtils.mkdir_p(File.dirname(fname))
       FileUtils.cp(
-        "#{source_dir}/#{i}",
+        "#{source_dir}/posts/#{i}",
         fname
       )
     end
