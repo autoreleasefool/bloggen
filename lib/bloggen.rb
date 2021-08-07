@@ -27,7 +27,7 @@ class Bloggen
     Tags::clean(@dest_dir)
 
     # Publish each tags that's valid
-    tags = Tags::collect(@tags_file)
+    tags = Tags::collect(@tags_file).sort_by(&:slug)
     tags.each { |t| t.publish(@dest_dir) }
     tags.each { |t| t.publish_image(@images_source_dir, "#{@dest_dir}/assets/tags") }
 

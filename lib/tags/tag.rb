@@ -4,6 +4,8 @@ require 'fileutils'
 
 class Tag
 
+  attr_accessor :slug
+
   def initialize(name, slug, image_path)
     @name = name
     @slug = slug
