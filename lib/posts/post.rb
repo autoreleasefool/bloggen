@@ -5,6 +5,7 @@ class Post
   attr_accessor :frontmatter
 
   @@image_regex = /^!\[(?<Caption>[^\]]+)\]\((?<Filename>[^\)]+)\)/
+  @@predefined_frontmatter_keys = %w(layout permalink title date feature_image tags blog publish type)
 
   def initialize(input_filename)
     @input_filename = input_filename
@@ -135,15 +136,30 @@ class Post
     "/#{type}s/#{@frontmatter["permalink"]}"
   end
 
-  def formatted_frontmatter
+  def predefined_frontmatter
     [
-      '---',
       "layout: #{type}",
       "permalink: #{permalink}",
       "title: \"#{title}\"",
       "date: #{@frontmatter["date"]}",
       feature_image ? feature_image : nil,
       "tags: #{tags}",
+    ].compact.join("\n")
+  end
+
+  def extra_frontmatter
+    extra = @frontmatter
+      .select { |key, value| !@@predefined_frontmatter_keys.include?(key) }
+      .map { |key, value| "#{key}: #{value}" }
+      .join("\n")
+    return extra unless extra.empty?
+  end
+
+  def formatted_frontmatter
+    [
+      '---',
+      predefined_frontmatter,
+      extra_frontmatter,
       '---',
     ].compact.join("\n")
   end
