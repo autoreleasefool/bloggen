@@ -18,7 +18,7 @@ mv ../runcode.blog/tags/tags_index.html tmp/tags_index.html
 
 ./bin/bloggen \
   $blog_name \
-  /Users/josephroque/Library/Mobile\ Documents/iCloud~md~obsidian/Documents/Personal/Writing/Blog\ Posts \
+  /Users/josephroque/Library/Mobile\ Documents/iCloud~md~obsidian/Documents/Personal/Explorations/Writing/Blog\ Posts \
   /Users/josephroque/Library/Mobile\ Documents/iCloud~md~obsidian/Documents/Personal/Attachments/runcode.blog \
   /Users/josephroque/Library/Mobile\ Documents/iCloud~md~obsidian/Documents/Personal/Projects/Personal\ Blog/runcode.blog\ tags.md \
   ../$blog_name
