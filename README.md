@@ -15,28 +15,33 @@ See my blog at [https://runcode.blog](https://runcode.blog) for an example publi
 
 Posts require particularly formatted frontmatter, and should be written in markdown.
 
-The following frontmatter is supported. You can include other frontmatter, and it won't be consumed by bloggen, or published to your blog.
+The following frontmatter is supported. You can include other frontmatter, and it won't be consumed by bloggen, or published to your blog. All of the frontmatter should appear underneath a `bloggen:` top level key:
 
 | Key | Required? | Description |
 |-----|-----------|-------------|
-| `bloggen_blog` | :white_check_mark: | Name of the blog under which this post should be published |
-| `bloggen_tags` | :white_check_mark: | Comma-separated list of tags for the post
-| `bloggen_publish` | :white_check_mark: | `true` or `false` to indicate if this post is ready to publish |
-| `bloggen_type` | :white_check_mark: | `post` is the only valid value |
-| `bloggen_permalink` | :white_check_mark: | Slug for the post |
-| `bloggen_date` | :white_check_mark: | Date on which the post was first published |
-| `bloggen_feature_image` | :x: | Feature image for the post |
+| `blog` | :white_check_mark: | Name of the blog under which this post should be published |
+| `tags` | :white_check_mark: | YAML list of tags for the post
+| `publish` | :white_check_mark: | `true` or `false` to indicate if this post is ready to publish |
+| `type` | :white_check_mark: | `post` is the only valid value |
+| `permalink` | :white_check_mark: | Slug for the post |
+| `date` | :white_check_mark: | Date on which the post was first published |
+| `feature_image` | :x: | Feature image for the post |
 
 An example of a post with valid frontmatter:
 
 ```
 ---
-bloggen_blog: runcode.blog
-bloggen_tags: comma, separated, tags
-bloggen_publish: true
-bloggen_type: post
-bloggen_permalink: test-post-please-ignore
-bloggen_date: 2021-08-05
+bloggen:
+  blog: runcode.blog
+  publish: true
+  type: post
+  permalink: test-post-please-ignore
+  date: 2021-08-05
+  tags:
+    - list
+    - of
+    - tags
+unrelated_frontmatter: true
 ---
 
 # This is the title
@@ -56,12 +61,12 @@ Posts should be written in markdown, and expect the following approximate format
 - The first H1 header tag (a single `#`) will be used as the title of the blog post
 - Only a single H1 header tag (a single `#`) should appear per blog post
 - You can use most markdown elements as expected.
+- Images must appear on their own line, with the following format: `![Caption](filename_in_images_source)`
 - The filename should end in a `.md` file extension
 
 ### Output
 
 bloggen has been built to support publishing to a blog backed by [jekyll](https://jekyllrb.com). It will output posts to a `_posts` subdirectory in the `<destination>` provided in the arguments, and will output images to a `assets/posts/` subdirectory in `<destination>`. It will also clean these folders before writing changes, so if you're just starting with bloggen, ensure your posts are backed up elsewhere.
-
 
 ## Tags
 

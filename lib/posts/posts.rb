@@ -16,7 +16,6 @@ module Posts
       .select { |f| File.file?(f) }
       .map { |f| Post.new(f) }
       .select { |p| !p.frontmatter.empty? }
-      .select { |p| p.frontmatter['publish'] == 'true' }
       .select { |p| p.frontmatter['blog'] == blogname }
   end
 end

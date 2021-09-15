@@ -18,9 +18,9 @@ mv ../runcode.blog/tags/tags_index.html tmp/tags_index.html
 
 ./bin/bloggen \
   $blog_name \
-  /Users/josephroque/Documents/Obsidian/Personal/Explorations/Writing/Blog\ Posts \
-  /Users/josephroque/Documents/Obsidian/Personal/Attachments/runcode.blog \
-  /Users/josephroque/Documents/Obsidian/Personal/Projects/Personal\ Blog/runcode.blog\ tags.md \
+  /Users/josephroque/Documents/Obsidian/Personal/10\ Projects/14\ Ongoing\ Projects/14.08\ runcode.blog/Content/Posts \
+  /Users/josephroque/Documents/Obsidian/Personal/00\ Index/03\ Resources/03.01\ Attachments \
+  /Users/josephroque/Documents/Obsidian/Personal/10\ Projects/14\ Ongoing\ Projects/14.08\ runcode.blog/Content/Tags.md \
   ../$blog_name
 
 mv tmp/tags_index.html ../runcode.blog/tags/tags_index.html
