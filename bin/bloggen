@@ -18,7 +18,7 @@ bloggen [OPTION] ... BLOGNAME POSTS_SOURCE IMAGES_SOURCE TAGS_FILE BLOG_DEST
   show help
 
 BLOGNAME: The name of the blog to publish
-POSTS_SOURCE: Directory to load blog posts from
+POSTS_SOURCE: Directory to load blog posts from, searched recursively
 IMAGES_SOURCE: Directory to load images from
 TAGS_FILE: File to parse for tag descriptions
 BLOG_DEST: Directory to publish blog posts to

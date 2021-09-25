@@ -57,7 +57,7 @@ class Post
 
     @frontmatter = YAML.load(frontmatter)["bloggen"]
     @body = body
-    if @frontmatter.key?('feature_image') then
+    if !@frontmatter.nil? && @frontmatter.key?('feature_image') then
       @images << Image.new(SecureRandom.uuid, "Feature image", @frontmatter["feature_image"])
     end
   end
@@ -116,6 +116,10 @@ class Post
       extra_frontmatter,
       '---',
     ].compact.join("\n")
+  end
+
+  def has_frontmatter
+    !@frontmatter.nil?
   end
 
 end

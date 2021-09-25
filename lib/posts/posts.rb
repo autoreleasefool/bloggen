@@ -11,11 +11,10 @@ module Posts
   end
 
   def Posts.collect(blogname, source_dir)
-    Dir.children(source_dir)
-      .map { |f| "#{source_dir}/#{f}" }
+    Dir.glob("#{source_dir}/**/*.md")
       .select { |f| File.file?(f) }
       .map { |f| Post.new(f) }
-      .select { |p| !p.frontmatter.empty? }
+      .select { |p| p.has_frontmatter }
       .select { |p| p.frontmatter['blog'] == blogname }
   end
 end
