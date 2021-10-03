@@ -7,9 +7,8 @@ for arg in "$@"
 do
   case $arg in
     -d|--dry-run)
-    DRY_RUN=1
-    shift
-    ;;
+      DRY_RUN=1
+      ;;
   esac
 done
 
@@ -17,6 +16,7 @@ mkdir -p tmp
 mv ../runcode.blog/tags/tags_index.html tmp/tags_index.html
 
 ./bin/bloggen \
+  "$@" \
   $blog_name \
   /Users/josephroque/Documents/Obsidian/Personal \
   /Users/josephroque/Documents/Obsidian/Personal/00\ Index/03\ Resources/03.01\ Attachments \

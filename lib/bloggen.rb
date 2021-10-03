@@ -14,6 +14,16 @@ class Bloggen
     @images_source_dir = images_source
     @tags_file = tags_file
     @dest_dir = dest
+
+    @logger = Logger.new
+  end
+
+  def verbose=(verbose)
+    @logger.verbose = verbose
+  end
+
+  def terse=(terse)
+    @logger.terse = terse
   end
 
   def generate
@@ -21,14 +31,13 @@ class Bloggen
     posts = Posts::collect(@blogname, @posts_source_dir)
     tags = Tags::collect(@tags_file).sort_by(&:slug)
 
-    logger = Logger.new(false)
     processor = MarkdownProcessor.new()
     context = ProcessorContext.new(
       @blogname,
       posts,
       tags,
       @images_source_dir,
-      logger,
+      @logger,
     )
 
     # Remove existing posts
@@ -39,7 +48,7 @@ class Bloggen
       .select { |post| post.is_published }
       .each { |post|
         logid = post.title
-        logger.write(logid, "✅ Publishing '#{post.title}'")
+        @logger.write(logid, "✅ Publishing '#{post.title}'")
 
         processor.process(post, context)
 
@@ -48,38 +57,38 @@ class Bloggen
           file.write(post.content)
           file.write("\n")
         end
-        logger.verbose(logid, "Writing content to '#{dest}'")
+        @logger.verbose(logid, "Writing content to '#{dest}'")
 
         if post.images.count > 0 then
-          logger.verbose(logid, "Writing images")
-          logger.indent(logid, 2)
+          @logger.verbose(logid, "Writing images")
+          @logger.indent(logid, 2)
           post.images.each do |i|
             fname = "#{@dest_dir}/assets/posts/#{i.filename}"
             sname = "#{@images_source_dir}/#{i.filename}"
 
             if !File.exist?(sname) then
-              logger.verbose(logid, "❓ Image '#{i.filename}' not found")
+              @logger.verbose(logid, "❓ Image '#{i.filename}' not found")
               next
             end
 
-            logger.verbose(logid, "✅ Writing '#{i.filename}'")
+            @logger.verbose(logid, "✅ Writing '#{i.filename}'")
             FileUtils.mkdir_p(File.dirname(fname))
             FileUtils.cp(sname, fname)
           end
-          logger.indent(logid, -2)
+          @logger.indent(logid, -2)
         end
       }
 
     posts
       .select { |post| !post.is_published }
-      .each { |post| logger.write(post.title, "❌ Not publishing '#{post.title}'") }
+      .each { |post| @logger.write_e(post.title, "❌ Not publishing '#{post.title}'") }
 
     # Clean up tags directories
     Tags::clean(@dest_dir)
 
     # Publish each tags that's valid
     tags
-      .each { |tag| logger.create_context(tag.slug, "[TAGS] #{tag.slug}")}
+      .each { |tag| @logger.create_context(tag.slug, "[TAGS] #{tag.slug}")}
       .each { |tag|
         tag_file = "#{@dest_dir}/_data/tags.yml"
         File.open(tag_file, "a") do |f|
@@ -88,7 +97,7 @@ class Bloggen
             f.write("  has_image: true\n")
           end
         end
-        logger.write(tag.slug, "✅ Appending to '#{tag_file}'")
+        @logger.write_e(tag.slug, "✅ Appending to '#{tag_file}'")
 
         tag_html = "#{@dest_dir}/tags/#{tag.slug}.html"
         File.open(tag_html, "w") do |f|
@@ -98,7 +107,7 @@ class Bloggen
           f.write("permalink: /tags/#{tag.slug}\n")
           f.write("---\n")
         end
-        logger.write(tag.slug, "✅ HTML to '#{tag_html}'")
+        @logger.write_e(tag.slug, "✅ HTML to '#{tag_html}'")
 
         next unless tag.image_path != nil
 
@@ -110,10 +119,10 @@ class Bloggen
           image_dest
         )
 
-        logger.write(tag.slug, "✅ Writing image to '#{image_dest}")
+        @logger.write_e(tag.slug, "✅ Writing image to '#{image_dest}")
       }
 
-    logger.flush
+    @logger.flush
   end
 
 end

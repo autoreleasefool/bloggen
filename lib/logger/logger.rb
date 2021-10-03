@@ -5,7 +5,11 @@ Context = Struct.new(:indent, :logs)
 
 class Logger
 
-  def initialize(verbose = false)
+  attr_accessor :terse
+  attr_accessor :verbose
+
+  def initialize(terse = false, verbose = false)
+    @terse = terse
     @verbose = verbose
     @contexts = {}
   end
@@ -20,10 +24,14 @@ class Logger
     end
   end
 
+  def write_e(context_id, log)
+    return unless !@terse
+    write(context_id, log)
+  end
+
   def verbose(context_id, log)
-    if @verbose then
-      write(context_id, log)
-    end
+    return unless @verbose
+    write(context_id, log)
   end
 
   def indent(context_id, length)
@@ -34,6 +42,7 @@ class Logger
 
   def flush()
     @contexts.each do |_, context|
+      next if @terse && context.logs.count <= 1
       context.logs.each do |log|
         puts "#{' ' * log.indent}#{log.message}"
       end

@@ -5,11 +5,21 @@ require_relative '../lib/bloggen'
 require 'getoptlong'
 
 opts = GetoptLong.new(
-  ['--help', '-h', GetoptLong::NO_ARGUMENT]
+  ['--help', '-h', GetoptLong::NO_ARGUMENT],
+  ['--verbose', '-v', GetoptLong::NO_ARGUMENT],
+  ['--terse', '-t', GetoptLong::NO_ARGUMENT],
+  ['--dry-run', '-d', GetoptLong::NO_ARGUMENT],
 )
+
+terse = false
+verbose = false
 
 opts.each do |opt, _arg|
   case opt
+  when '--verbose'
+    verbose = true
+  when '--terse'
+    terse = true
   when '--help'
     puts <<~HELP
 bloggen [OPTION] ... BLOGNAME POSTS_SOURCE IMAGES_SOURCE TAGS_FILE BLOG_DEST
@@ -39,4 +49,6 @@ tags_file = ARGV.shift
 dest = ARGV.shift
 
 bloggen = Bloggen.new(blogname, posts_source, images_source, tags_file, dest)
+bloggen.verbose = verbose
+bloggen.terse = terse
 bloggen.generate
