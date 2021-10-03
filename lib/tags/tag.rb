@@ -2,9 +2,9 @@
 
 class Tag
 
-  attr_accessor :name
-  attr_accessor :slug
-  attr_accessor :image_path
+  attr_reader :name
+  attr_reader :slug
+  attr_reader :image_path
 
   def initialize(name, slug, image_path)
     @name = name

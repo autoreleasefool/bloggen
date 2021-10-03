@@ -44,8 +44,8 @@ class Bloggen
     Posts::clean(@dest_dir)
 
     posts
-      .each { |post| logger.create_context(post.title, "[POST] #{post.title}") }
-      .select { |post| post.is_published }
+      .each { |post| @logger.create_context(post.title, "[POST] #{post.title}") }
+      .select { |post| post.is_published && post.is_after_publish_date }
       .each { |post|
         logid = post.title
         @logger.write(logid, "✅ Publishing '#{post.title}'")
@@ -78,6 +78,10 @@ class Bloggen
           @logger.indent(logid, -2)
         end
       }
+
+    posts
+      .select { |post| post.is_published && !post.is_after_publish_date }
+      .each { |post| @logger.write(post.title, "🕓 Waiting to publish until #{post.publish_date}")}
 
     posts
       .select { |post| !post.is_published }

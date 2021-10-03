@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'date'
 require 'yaml'
 require 'securerandom'
 
@@ -7,10 +8,11 @@ Image = Struct.new(:id, :caption, :filename)
 
 class Post
 
-  attr_accessor :frontmatter
   attr_accessor :body
-  attr_accessor :title
-  attr_accessor :images
+
+  attr_reader :frontmatter
+  attr_reader :title
+  attr_reader :images
 
   @@image_regex = /^!\[(?<Caption>[^\]]+)\]\((?<Filename>[^\)]+)\)/
   @@predefined_frontmatter_keys = %w(layout permalink title date feature_image tags blog publish type)
@@ -55,7 +57,13 @@ class Post
       raise "File `#{input_filename}` missing frontmatter"
     end
 
-    @frontmatter = YAML.load(frontmatter)["bloggen"]
+    begin
+      @frontmatter = YAML.load(frontmatter)
+      @frontmatter = if @frontmatter.key?("bloggen") then @frontmatter["bloggen"] else nil end
+    rescue
+      @frontmatter = nil
+    end
+
     @body = body
     if !@frontmatter.nil? && @frontmatter.key?('feature_image') then
       @images << Image.new(SecureRandom.uuid, "Feature image", @frontmatter["feature_image"])
@@ -90,12 +98,20 @@ class Post
     @frontmatter["publish"]
   end
 
+  def publish_date
+    @frontmatter["date"]
+  end
+
+  def is_after_publish_date
+    publish_date < Time.now
+  end
+
   def predefined_frontmatter
     [
       "layout: #{type}",
       "permalink: #{permalink}",
       "title: \"#{@title}\"",
-      "date: #{@frontmatter["date"].to_s}",
+      "date: #{publish_date.to_s}",
       feature_image ? feature_image : nil,
       "tags: #{tags}",
     ].compact.join("\n")
