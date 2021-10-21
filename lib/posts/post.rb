@@ -1,109 +1,63 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
+
 require 'date'
-require 'yaml'
+require 'fileutils'
 require 'securerandom'
+require 'yaml'
 
 Image = Struct.new(:id, :caption, :filename)
 
+# A Blog Post
 class Post
-
   attr_accessor :body
+  attr_reader :frontmatter, :title, :images
 
-  attr_reader :frontmatter
-  attr_reader :title
-  attr_reader :images
+  def self.image_regex
+    /^!\[(?<Caption>[^\]]+)\]\((?<Filename>[^)]+)\)/
+  end
 
-  @@image_regex = /^!\[(?<Caption>[^\]]+)\]\((?<Filename>[^\)]+)\)/
-  @@predefined_frontmatter_keys = %w(layout permalink title date feature_image tags blog publish type)
+  def self.predefined_frontmatter_keys
+    %w[layout permalink title date feature_image tags blog publish type]
+  end
 
-  def initialize(input_filename)
-    parsing_frontmatter = true
-    frontmatter = ""
-    body = ""
-    @images = []
-    File.foreach(input_filename).with_index do |line, index|
-      next if index == 0
-
-      if parsing_frontmatter then
-        if line.chomp == '---' then
-          parsing_frontmatter = false
-          next
-        end
-
-        frontmatter += line
-        next
-      end
-
-      if @title == nil && line.start_with?('# ') then
-        @title = line[1..].strip
-      end
-
-      next if @title == nil
-
-      if line.start_with?('![') then
-        id = SecureRandom.uuid
-        parts = line.match(@@image_regex)
-        line = "#{id}\n"
-        if parts then
-          @images << Image.new(id, parts["Caption"], parts["Filename"])
-        end
-      end
-
-      body = "#{body}#{line}"
-    end
-
-    if frontmatter.empty? then
-      raise "File `#{input_filename}` missing frontmatter"
-    end
-
-    begin
-      @frontmatter = YAML.load(frontmatter)
-      @frontmatter = if @frontmatter.key?("bloggen") then @frontmatter["bloggen"] else nil end
-    rescue
-      @frontmatter = nil
-    end
-
-    @body = body
-    if !@frontmatter.nil? && @frontmatter.key?('feature_image') then
-      @images << Image.new(SecureRandom.uuid, "Feature image", @frontmatter["feature_image"])
-    end
+  def type
+    @frontmatter['type']
   end
 
   def content
     "#{formatted_frontmatter}#{body}"
   end
 
-  def type
-    @frontmatter["type"]
-  end
-
   def filename
-    "#{@frontmatter["date"].strftime("%Y-%m-%d")}-#{@frontmatter["permalink"]}"
+    "#{publish_date.strftime('%Y-%m-%d')}-#{@frontmatter['permalink']}"
   end
 
   def tags
-    @frontmatter["tags"].join(' ')
+    @frontmatter['tags'].join(' ')
   end
 
   def feature_image
-    @frontmatter.key?('feature_image') ? "feature_image: /assets/#{type}s/#{@frontmatter["feature_image"]}" : nil
+    @frontmatter.key?('feature_image') ? "feature_image: /assets/#{type}s/#{@frontmatter['feature_image']}" : nil
   end
 
   def permalink
-    "/#{type}s/#{@frontmatter["permalink"]}"
+    "/#{type}s/#{@frontmatter['permalink']}"
   end
 
-  def is_published
-    @frontmatter["publish"]
+  def published?
+    @frontmatter['publish']
   end
 
   def publish_date
-    @frontmatter["date"]
+    DateTime.iso8601(@frontmatter['date'])
+  rescue Date::Error
+    DateTime.now + 1_000_000_000
   end
 
-  def is_after_publish_date
-    publish_date < Time.now
+  def after_publish_date?
+    publish_date < DateTime.now
   end
 
   def predefined_frontmatter
@@ -111,31 +65,96 @@ class Post
       "layout: #{type}",
       "permalink: #{permalink}",
       "title: \"#{@title}\"",
-      "date: #{publish_date.to_s}",
-      feature_image ? feature_image : nil,
-      "tags: #{tags}",
+      "date: #{publish_date}",
+      feature_image || nil,
+      "tags: #{tags}"
     ].compact.join("\n")
   end
 
   def extra_frontmatter
-    extra = @frontmatter
-      .select { |key, value| !@@predefined_frontmatter_keys.include?(key) }
+    @frontmatter
+      .reject { |key, _| self.class.predefined_frontmatter_keys.include?(key) }
       .map { |key, value| "#{key}: #{value}" }
       .join("\n")
-    return extra unless extra.empty?
   end
 
   def formatted_frontmatter
-    [
-      '---',
-      predefined_frontmatter,
-      extra_frontmatter,
-      '---',
-    ].compact.join("\n")
+    ['---', predefined_frontmatter, extra_frontmatter, '---'].compact.join("\n")
   end
 
-  def has_frontmatter
-    !@frontmatter.nil?
+  def frontmatter?
+    !@frontmatter.nil? && !frontmatter.empty?
   end
 
+  # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
+  def initialize(input_filename)
+    @frontmatter = ''
+    @body = ''
+    @title = nil
+    @images = []
+
+    frontmatter_bounds = 2
+    @frontmatter = ''
+
+    File.foreach(input_filename) do |line|
+      frontmatter_bounds -= 1 if line.chomp == '---'
+      @frontmatter += line if frontmatter_bounds.positive?
+      next if frontmatter_bounds.positive?
+
+      @title = line[1..].strip if @title.nil? && line.start_with?('# ')
+
+      next if @title.nil?
+
+      if line.start_with?('![')
+        id = SecureRandom.uuid
+        parts = line.match(self.class.image_regex)
+        line = "#{id}\n"
+
+        @images << Image.new(id, parts['Caption'], parts['Filename']) if parts
+      end
+
+      @body += line
+    end
+
+    raise "File `#{input_filename}` missing frontmatter" if frontmatter_bounds.positive?
+
+    @frontmatter = YAML.safe_load(@frontmatter) || {}
+    @frontmatter = @frontmatter.key?('bloggen') ? @frontmatter['bloggen'] : nil
+
+    return unless !@frontmatter.nil? && @frontmatter.key?('feature_image')
+
+    @images << Image.new(SecureRandom.uuid, 'Feature image', @frontmatter['feature_image'])
+  end
+
+  def publish(processor, context)
+    context.logger.write(@title, "✅ Publishing '#{@title}'")
+
+    processor.process(self, context)
+
+    dest = "#{context.dest_dir}/_#{type}s/#{filename}.md"
+    File.open(dest, 'w') { |f| f.write("#{content}\n") }
+    context.logger.write_verbose(@title, "Writing content to '#{dest}'")
+
+    return unless @images.count.positive?
+
+    context.logger.write_verbose(@title, 'Writing images')
+    context.logger.indent(@title, 2)
+    @images.each do |i|
+      fname = "#{context.dest_dir}/assets/posts/#{i.filename}"
+      sname = "#{context.images_source_dir}/#{i.filename}"
+
+      unless File.exist?(sname)
+        context.logger.write_verbose(@title, "❓ Image '#{i.filename}' not found")
+        next
+      end
+
+      context.logger.write_verbose(@title, "✅ Writing '#{i.filename}'")
+      FileUtils.mkdir_p(File.dirname(fname))
+      FileUtils.cp(sname, fname)
+    end
+    context.logger.indent(@title, -2)
+  end
+  # rubocop:enable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/MethodLength, Metrics/PerceivedComplexity
 end
+
+# rubocop:enable Metrics/ClassLength

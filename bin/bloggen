@@ -8,7 +8,7 @@ opts = GetoptLong.new(
   ['--help', '-h', GetoptLong::NO_ARGUMENT],
   ['--verbose', '-v', GetoptLong::NO_ARGUMENT],
   ['--terse', '-t', GetoptLong::NO_ARGUMENT],
-  ['--dry-run', '-d', GetoptLong::NO_ARGUMENT],
+  ['--dry-run', '-d', GetoptLong::NO_ARGUMENT]
 )
 
 terse = false
@@ -22,16 +22,16 @@ opts.each do |opt, _arg|
     terse = true
   when '--help'
     puts <<~HELP
-bloggen [OPTION] ... BLOGNAME POSTS_SOURCE IMAGES_SOURCE TAGS_FILE BLOG_DEST
-
--h, --help:
-  show help
-
-BLOGNAME: The name of the blog to publish
-POSTS_SOURCE: Directory to load blog posts from, searched recursively
-IMAGES_SOURCE: Directory to load images from
-TAGS_FILE: File to parse for tag descriptions
-BLOG_DEST: Directory to publish blog posts to
+            bloggen [OPTION] ... BLOGNAME POSTS_SOURCE IMAGES_SOURCE TAGS_FILE BLOG_DEST
+      #{'      '}
+            -h, --help:
+              show help
+      #{'      '}
+            BLOGNAME: The name of the blog to publish
+            POSTS_SOURCE: Directory to load blog posts from, searched recursively
+            IMAGES_SOURCE: Directory to load images from
+            TAGS_FILE: File to parse for tag descriptions
+            BLOG_DEST: Directory to publish blog posts to
     HELP
     exit 0
   end
