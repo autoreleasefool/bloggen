@@ -8,11 +8,13 @@ opts = GetoptLong.new(
   ['--help', '-h', GetoptLong::NO_ARGUMENT],
   ['--verbose', '-v', GetoptLong::NO_ARGUMENT],
   ['--terse', '-t', GetoptLong::NO_ARGUMENT],
-  ['--dry-run', '-d', GetoptLong::NO_ARGUMENT]
+  ['--dry-run', '-d', GetoptLong::NO_ARGUMENT],
+  ['--strip-absolute-paths', GetoptLong::NO_ARGUMENT]
 )
 
 terse = false
 verbose = false
+strip_absolute_paths = false
 
 opts.each do |opt, _arg|
   case opt
@@ -20,6 +22,8 @@ opts.each do |opt, _arg|
     verbose = true
   when '--terse'
     terse = true
+  when '--strip-absolute-paths'
+    strip_absolute_paths = true
   when '--help'
     puts <<~HELP
             bloggen [OPTION] ... BLOGNAME POSTS_SOURCE IMAGES_SOURCE TAGS_FILE BLOG_DEST
@@ -51,4 +55,5 @@ dest = ARGV.shift
 bloggen = Bloggen.new(blogname, posts_source, images_source, tags_file, dest)
 bloggen.verbose = verbose
 bloggen.terse = terse
+bloggen.strip_absolute_paths = strip_absolute_paths
 bloggen.generate

@@ -7,7 +7,11 @@ require 'fileutils'
 require 'securerandom'
 require 'yaml'
 
-Image = Struct.new(:id, :caption, :filename)
+Image = Struct.new(:id, :caption, :filename) do
+  def contextual_filename(context)
+    context.strip_absolute_paths ? filename.gsub(%r{.*/}) { '' } : filename
+  end
+end
 
 # A Blog Post
 class Post
@@ -140,15 +144,16 @@ class Post
     context.logger.write_verbose(@title, 'Writing images')
     context.logger.indent(@title, 2)
     @images.each do |i|
-      fname = "#{context.dest_dir}/assets/posts/#{i.filename}"
-      sname = "#{context.images_source_dir}/#{i.filename}"
+      filename = i.contextual_filename(context)
+      fname = "#{context.dest_dir}/assets/posts/#{filename}"
+      sname = "#{context.images_source_dir}/#{filename}"
 
       unless File.exist?(sname)
-        context.logger.write_verbose(@title, "❓ Image '#{i.filename}' not found")
+        context.logger.write_verbose(@title, "❓ Image '#{filename}' not found")
         next
       end
 
-      context.logger.write_verbose(@title, "✅ Writing '#{i.filename}'")
+      context.logger.write_verbose(@title, "✅ Writing '#{filename}'")
       FileUtils.mkdir_p(File.dirname(fname))
       FileUtils.cp(sname, fname)
     end

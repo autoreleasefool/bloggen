@@ -21,7 +21,8 @@ mv ../runcode.blog/tags/tags_index.html tmp/tags_index.html
   /Users/josephroque/Documents/Obsidian/Personal \
   /Users/josephroque/Documents/Obsidian/Personal/90\ Admin/91\ Resources/91.01\ Attachments \
   /Users/josephroque/Documents/Obsidian/Personal/10\ Personal/10\ Projects/10.08\ runcode.blog/Content/Tags.md \
-  ../$blog_name
+  ../$blog_name \
+  --strip-absolute-paths
 
 mv tmp/tags_index.html ../runcode.blog/tags/tags_index.html
 rm -rf tmp

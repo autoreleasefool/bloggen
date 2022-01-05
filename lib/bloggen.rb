@@ -12,7 +12,8 @@ Context = Struct.new(
   :tags,
   :images_source_dir,
   :dest_dir,
-  :logger
+  :logger,
+  :strip_absolute_paths
 ) do
   def scheduled_posts
     posts.select { |post| post.published? && !post.after_publish_date? }
@@ -34,7 +35,7 @@ class Bloggen
     tags = Tags.collect(tags_file).sort_by(&:slug)
 
     @processor = MarkdownProcessor.new
-    @context = Context.new(blogname, posts, tags, images_source, dest, Logger.new)
+    @context = Context.new(blogname, posts, tags, images_source, dest, Logger.new, false)
   end
 
   def verbose=(verbose)
@@ -43,6 +44,10 @@ class Bloggen
 
   def terse=(terse)
     @context.logger.terse = terse
+  end
+
+  def strip_absolute_paths=(strip_absolute_paths)
+    @context.strip_absolute_paths = strip_absolute_paths
   end
 
   def generate

@@ -17,11 +17,12 @@ class ImageProcessor
   private
 
   def process_post(post, context, image, logid)
+    filename = image.contextual_filename(context)
     post.body = post.body.gsub(
       image.id.to_s,
-      "![#{image.caption}](/assets/posts/#{image.filename})\n\n<figcaption>#{image.caption}</figcaption>"
+      "![#{image.caption}](/assets/posts/#{filename})\n\n<figcaption>#{image.caption}</figcaption>"
     )
 
-    context.logger.write_verbose(logid, "Processed '#{image.filename}'")
+    context.logger.write_verbose(logid, "Processed '#{filename}'")
   end
 end
