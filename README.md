@@ -17,15 +17,15 @@ Posts require particularly formatted frontmatter, and should be written in markd
 
 The following frontmatter is supported. You can include other frontmatter, and it won't be consumed by bloggen, or published to your blog. All of the frontmatter should appear underneath a `bloggen:` top level key:
 
-| Key | Required? | Description |
-|-----|-----------|-------------|
-| `blog` | :white_check_mark: | Name of the blog under which this post should be published |
-| `tags` | :white_check_mark: | YAML list of tags for the post
-| `publish` | :white_check_mark: | `true` or `false` to indicate if this post is ready to publish |
-| `type` | :white_check_mark: | `post` is the only valid value |
-| `permalink` | :white_check_mark: | Slug for the post |
-| `date` | :white_check_mark: | Date on which the post was first published |
-| `feature_image` | :x: | Feature image for the post |
+| Key             | Required?          | Description                                                    |
+| --------------- | ------------------ | -------------------------------------------------------------- |
+| `blog`          | :white_check_mark: | Name of the blog under which this post should be published     |
+| `tags`          | :white_check_mark: | YAML list of tags for the post                                 |
+| `publish`       | :white_check_mark: | `true` or `false` to indicate if this post is ready to publish |
+| `type`          | :white_check_mark: | `post` is the only valid value                                 |
+| `permalink`     | :white_check_mark: | Slug for the post                                              |
+| `date`          | :white_check_mark: | Date on which the post was first published                     |
+| `feature_image` | :x:                | Feature image for the post                                     |
 
 An example of a post with valid frontmatter:
 
@@ -63,6 +63,7 @@ Posts should be written in markdown, and expect the following approximate format
 - You can use most markdown elements as expected.
 - Images must appear on their own line, with the following format: `![Caption](filename_in_images_source)`
 - The filename should end in a `.md` file extension
+- You can include HTML style comments (`<!-- This is a comment -->`) and they will be stripped from the post before publishing.
 
 ### Output
 
