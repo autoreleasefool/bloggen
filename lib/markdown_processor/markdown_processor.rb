@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative 'processors/comments_processor'
 require_relative 'processors/image_processor'
 require_relative 'processors/quote_processor'
 require_relative 'processors/wikilink_processor'
@@ -8,6 +9,7 @@ require_relative 'processors/wikilink_processor'
 class MarkdownProcessor
   def initialize
     @subprocessors = [
+      CommentsProcessor.new,
       WikilinkProcessor.new,
       QuoteProcessor.new,
       ImageProcessor.new

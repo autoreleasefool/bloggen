@@ -125,8 +125,6 @@ class Post
     @frontmatter = YAML.safe_load(@frontmatter) || {}
     @frontmatter = @frontmatter.key?('bloggen') ? @frontmatter['bloggen'] : nil
 
-    @body = @body.gsub(/<!--.*?-->/m, '').gsub(/\n{3,}/m, "\n\n").strip
-
     return unless !@frontmatter.nil? && @frontmatter.key?('feature_image')
 
     @images << Image.new(SecureRandom.uuid, 'Feature image', @frontmatter['feature_image'])
